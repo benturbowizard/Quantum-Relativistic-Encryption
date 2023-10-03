@@ -22,14 +22,27 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     print('Encrypting...')
     t1 = time.time()
-    encryptor = Encryptor(public_key)
+    # Initialize the Encryptor class
+    encryptor = Encryptor(public_key, N, q)
+
+    # Try to encrypt the message
     try:
-        print("Debug: About to call encrypt function.")
-        message = "Message"
-        print(f"Debug: Message to encrypt: {message}")
+        print("Debug: Inside Encryptor constructor.")  # Existing Debugging Line
+        print("Debug: About to call encrypt function.")  # Existing Debugging Line
+        print(f"Debug: Message to encrypt: {message}")  # Existing Debugging Line
+    
+        # Store the result of the encrypt function in a variable first
+        encryption_result = encryptor.encrypt(message, N, q)
+    
+        # New Debugging Line: Print what the encrypt function returned
+        print(f"Debug: Encryption result: {encryption_result}")
         print("Debug: About to unpack values.")
-        c1, c2, ciphertext, tag, seed = encryptor.encrypt(message, N, q)
+
+        print("Debug: About to unpack values.")
+        # Then unpack the result into variables
+        c1, c2, ciphertext, tag, seed = encryption_result
         print("Debug: Unpacked values successfully.")
+        print(f"Debug: c1: {c1}, c2: {c2}, ciphertext: {ciphertext}, tag: {tag}, seed: {seed}")  # New Debugging Line
         print("Debug: Encryption successful.")
     except Exception as e:
         print(f"Debug: Exception details: {e}")

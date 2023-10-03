@@ -110,7 +110,13 @@ class Encryptor:
         if isinstance(message, str):
             message = message.encode('utf-8')
         ciphertext, tag = aes_encrypt(key, message)
-        return c1, c2, ciphertext, tag, seed
+        try:
+            # ... (existing code)
+            print(f"Debug: About to return values. c1: {c1}, c2: {c2}, ciphertext: {ciphertext}, tag: {tag}, seed: {seed}")  # New Debugging Line
+            return c1, c2, ciphertext, tag, seed
+        except Exception as e:
+            print(f"Debug: Encryption failed inside Encryptor class: {e}")
+            return None
 
 # Hybrid Decryptor class  
 class Decryptor:
@@ -128,10 +134,12 @@ class Decryptor:
 class AESCipher:
     def __init__(self, key):
         print("Debug: Inside AESCipher constructor.")
+        print(f"Debug: Key: {key}")  # New Debugging Line
         self.key = key
 
     def encrypt(self, plaintext):
         print("Debug: Inside AESCipher encrypt function.")
+        print(f"Debug: Plaintext: {plaintext}")  # New Debugging Line
         iv = os.urandom(12)
         cipher = Cipher(algorithms.AES(self.key), modes.GCM(iv), backend=default_backend())
         encryptor = cipher.encryptor()
