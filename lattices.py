@@ -6,6 +6,13 @@ import os
 import hashlib
 import numpy as np
 
+# Placeholder for generate_gadget_matrix
+def generate_gadget_matrix(n, nB):
+    # TODO: Implement the actual function
+    print("Placeholder for generate_gadget_matrix called with n =", n, "and nB =", nB)
+    return None  # Replace with actual return value
+
+
 def save_key(key, filename):
     with open(filename, 'wb') as f:
         f.write(key)
@@ -30,7 +37,7 @@ def generate_key_pair(n, q):
   
   # Compute public key 
   B = 64  
-  pub_key = priv_key @ pq.generate_gadget_matrix(n, n*B)
+  pub_key = priv_key @ generate_gadget_matrix(n, n*B)
 
   return priv_key, pub_key
 
