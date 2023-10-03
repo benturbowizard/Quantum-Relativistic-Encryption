@@ -11,9 +11,9 @@ t1 = time.time()
 private_key, public_key = generate_key_pair(N, q)
 t2 = time.time()
 print(f'Keygen took {t2 - t1:.2f} seconds')
+print(f'Shape of pub_key after generation: {public_key.shape}')
 
 print('Connecting to server...')
-
 HOST = 'localhost'
 PORT = 12345
 

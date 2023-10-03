@@ -14,7 +14,6 @@ t2 = time.time()
 print(f'Keygen took {t2 - t1:.2f} seconds')
 
 print('Starting server...')
-
 HOST = 'localhost'
 PORT = 12345
 
