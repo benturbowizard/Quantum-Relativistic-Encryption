@@ -46,7 +46,9 @@ def gaussian_sampler(mu, sigma, n, q):
 # Lattice key generation
 def generate_key_pair(n, q):
     print("Debug: Inside generate_key_pair function.")
+    print(f"Debug: Parameters - n: {n}, q: {q}")
     priv_key = gaussian_sampler(0, 8, n, q)
+    print(f"Debug: Private key length: {len(priv_key)}")
     B = 64  
     gadget_matrix = generate_gadget_matrix(n, n*B)
     pub_key = priv_key @ gadget_matrix
@@ -55,6 +57,7 @@ def generate_key_pair(n, q):
 # Regev encryption
 def encrypt(pub_key, message, n, q):
     print("Debug: Inside encrypt function.")
+    print(f"Debug: Parameters - pub_key shape: {np.shape(pub_key)}, message: {message}, n: {n}, q: {q}")
     K = 16
     u = encode(message, K)
     e1 = gaussian_sampler(0, 8, n, q)

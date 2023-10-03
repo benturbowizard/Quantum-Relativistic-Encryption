@@ -13,9 +13,15 @@ private_key, public_key = generate_key_pair(N, q)
 t2 = time.time()
 print(f'Keygen took {t2 - t1:.2f} seconds')
 
+# Add Debugging Step
+print("Debug: Server keys generated successfully.")
+print('Debug: Parameters - N:', N, ', q:', q)  # New Debugging Line
+
+
 print('Starting server...')
 HOST = 'localhost'
 PORT = 12345
+print("Debug: About to start the server.")
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))
@@ -26,6 +32,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         
         # Receive and deserialize data
         received_data = conn.recv(1024)
+        print(f"Debug: Received data length: {len(received_data)}")
         print(f"Received serialized data: {received_data}")  # Debugging line
         if received_data:
             print("Debug: About to deserialize data.")

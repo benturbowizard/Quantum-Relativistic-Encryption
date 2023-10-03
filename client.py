@@ -26,9 +26,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     try:
         print("Debug: About to call encrypt function.")
         message = "Message"
+        print(f"Debug: Message to encrypt: {message}")
         c1, c2, ciphertext, tag, seed = encryptor.encrypt(message, N, q)
         print("Debug: Encryption successful.")
     except Exception as e:
+        print(f"Debug: Exception details: {e}")
         print(f"Encryption failed: {e}")
         exit(1)
     t2 = time.time()
@@ -40,9 +42,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         c1_list = c1.tolist()
         c2_list = c2.tolist()
         seed_list = seed.tolist()
+        print(f"Debug: Serialized lists: c1_list: {c1_list}, c2_list: {c2_list}, seed_list: {seed_list}")
 
         serialized_data = pickle.dumps([c1_list, c2_list, ciphertext, tag, seed_list])
     except Exception as e:
+        print(f"Debug: Exception details: {e}")
         print(f"Serialization failed: {e}")
         exit(1)
 
@@ -52,11 +56,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     # Receive and deserialize data
     received_data = s.recv(1024)
     c1_list, c2_list, ciphertext, tag, seed_list = pickle.loads(received_data)
+    print(f"Debug: Received data: {received_data}")
 
     # Convert lists back to NumPy arrays
     c1 = c1_list
     c2 = c2_list
     seed = seed_list
+    print(f"Debug: Converted lists to NumPy arrays: c1: {c1}, c2: {c2}, seed: {seed}")
 
     print('Decrypting...')
     t1 = time.time()

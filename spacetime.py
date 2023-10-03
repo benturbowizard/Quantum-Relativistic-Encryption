@@ -7,6 +7,8 @@ class Spacetime:
         self.x, self.y = sp.symbols('x y')
         self.metric = sp.Matrix([[1, 0], [0, 1]])
 
+        print("Debug: Spacetime object initialized.")
+
     def set_metric(self, metric):
         self.metric = metric
 
