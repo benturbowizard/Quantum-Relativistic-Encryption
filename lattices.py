@@ -6,11 +6,21 @@ import os
 import hashlib
 import numpy as np
 
+# Implement the placeholder function for encoding the message
+def encode(message, K):
+    if isinstance(message, bytes):
+        message = message.decode('utf-8')
+    binary_message = ''.join(format(ord(char), '08b') for char in message)
+    padded_message = binary_message.ljust(K, '0')
+    return padded_message[:K]
+
 # Placeholder for generate_gadget_matrix
 def generate_gadget_matrix(n, nB):
     # TODO: Implement the actual function
     print("Placeholder for generate_gadget_matrix called with n =", n, "and nB =", nB)
-    return None  # Replace with actual return value
+    
+    # Return a mock matrix filled with zeros (or any other mock data)
+    return np.zeros((n, nB))
 
 
 def save_key(key, filename):
@@ -31,29 +41,46 @@ def gaussian_sampler(mu, sigma, n, q):
 
 # Lattice key generation
 def generate_key_pair(n, q):
-
   # Sample from discrete Gaussian
   priv_key = gaussian_sampler(0, 8, n, q)
   
   # Compute public key 
   B = 64  
-  pub_key = priv_key @ generate_gadget_matrix(n, n*B)
+  gadget_matrix = generate_gadget_matrix(n, n*B)
+  
+  # Debugging: Print the shapes
+  print("Shape of gadget_matrix:", np.shape(gadget_matrix))
+  print("Length of priv_key:", len(priv_key))
+
+  pub_key = priv_key @ gadget_matrix
+
+  # More Debugging: Print the shape of pub_key
+  print("Shape of pub_key after generation:", np.shape(pub_key))
 
   return priv_key, pub_key
 
 # Regev encryption
-def encrypt(pub_key, message):
+def encrypt(pub_key, message, n, q):
   
   # Encode message
   K = 16
-  u = pq.encode(message, K)
+  u = encode(message, K)
 
   # Sample error vectors   
   e1 = gaussian_sampler(0, 8, n, q)
   e2 = gaussian_sampler(0, 8, K, q)
 
   # Compute ciphertext
-  c0 = pub_key @ e1 + u
+  # Debugging: Print the shapes
+  print("Shape of pub_key:", np.shape(pub_key))
+  print("Length of e1:", len(e1))
+
+  # Compute ciphertext
+  try:
+    c0 = pub_key @ e1 + u
+  except ValueError as e:
+    print("Matrix multiplication failed:", e)
+    return None
   c1 = e2
 
   return c0, c1
@@ -87,9 +114,9 @@ class Encryptor:
   def __init__(self, public_key):
     self.pub_key = public_key
   
-  def encrypt(self, message):
+  def encrypt(self, message, n, q):
     # Regev encrypt
-    c1, c2 = encrypt(self.pub_key, message)  
+    c1, c2 = encrypt(self.pub_key, message, n, q)  
 
     # Derive AES key
     seed = os.urandom(32)
