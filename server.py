@@ -29,6 +29,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         received_data = conn.recv(1024)
         print(f"Received serialized data: {received_data}")  # Debugging line
         if received_data:
+            print("Debug: About to deserialize data.")
             c1, c2, ciphertext, tag, seed = pickle.loads(received_data)
             
             print('Decrypting...') 
@@ -46,6 +47,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             print(f'Encryption took {t2 - t1:.2f} seconds')
 
             # Serialize and send data
+            print("Debug: About to serialize data.")
             conn.send(pickle.dumps([c1, c2, ciphertext, tag, seed]))
         else:
             print("No data received.")

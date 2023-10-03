@@ -24,8 +24,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     t1 = time.time()
     encryptor = Encryptor(public_key)
     try:
+        print("Debug: About to call encrypt function.")
         message = "Message"
         c1, c2, ciphertext, tag, seed = encryptor.encrypt(message, N, q)
+        print("Debug: Encryption successful.")
     except Exception as e:
         print(f"Encryption failed: {e}")
         exit(1)
@@ -34,7 +36,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     # Serialize and send data
     try:
-        # Convert c1, c2, and seed to lists before serialization
+        print("Debug: About to serialize data.")
         c1_list = c1.tolist()
         c2_list = c2.tolist()
         seed_list = seed.tolist()
