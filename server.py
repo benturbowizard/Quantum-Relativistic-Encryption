@@ -1,7 +1,7 @@
 import socket
 import time
-from lattices import encode, load_key, generate_key_pair, Encryptor, Decryptor
-import pickle  # For data serialization
+import pickle
+from lattices import generate_key_pair, Encryptor, Decryptor
 
 # Lattice params  
 N = 256 
@@ -11,7 +11,7 @@ print('Generating server keys...')
 t1 = time.time()
 private_key, public_key = generate_key_pair(N, q)
 t2 = time.time()
-print(f'Keygen took {t2-t1:.2f} seconds')
+print(f'Keygen took {t2 - t1:.2f} seconds')
 
 print('Starting server...')
 
@@ -27,7 +27,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         
         # Receive and deserialize data
         received_data = conn.recv(1024)
-        print(f"Received serialized data: {received_data}") # Debugging line
+        print(f"Received serialized data: {received_data}")  # Debugging line
         if received_data:
             c1, c2, ciphertext, tag, seed = pickle.loads(received_data)
             
@@ -36,14 +36,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             decryptor = Decryptor(private_key)
             plaintext = decryptor.decrypt(c1, c2, ciphertext, tag, seed)
             t2 = time.time()
-            print(f'Decryption took {t2-t1:.2f} seconds')
+            print(f'Decryption took {t2 - t1:.2f} seconds')
 
             print('Encrypting...')
             t1 = time.time()
             encryptor = Encryptor(public_key) 
-            c1, c2, ciphertext, tag, seed = encryptor.encrypt(plaintext)
+            c1, c2, ciphertext, tag, seed = encryptor.encrypt(message, N, q)
             t2 = time.time()
-            print(f'Encryption took {t2-t1:.2f} seconds')
+            print(f'Encryption took {t2 - t1:.2f} seconds')
 
             # Serialize and send data
             conn.send(pickle.dumps([c1, c2, ciphertext, tag, seed]))

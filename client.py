@@ -1,7 +1,7 @@
 import socket
 import time
 import pickle
-from lattices import encode, generate_key_pair, Encryptor, Decryptor
+from lattices import generate_key_pair, Encryptor, Decryptor, encode
 
 N = 256
 q = 4093
@@ -24,7 +24,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     t1 = time.time()
     encryptor = Encryptor(public_key)
     try:
-        c1, c2, ciphertext, tag, seed = encryptor.encrypt("Message", N, q)
+        message = "Message"
+        c1, c2, ciphertext, tag, seed = encryptor.encrypt(message, N, q)
     except Exception as e:
         print(f"Encryption failed: {e}")
         exit(1)
@@ -33,12 +34,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     # Serialize and send data
     try:
-        # Explicitly cast c1, c2, and seed to bytes
-        c1_bytes = c1.astype(np.uint8).tobytes()
-        c2_bytes = c2.astype(np.uint8).tobytes()
-        seed_bytes = seed.astype(np.uint8).tobytes()
+        # Convert c1, c2, and seed to lists before serialization
+        c1_list = c1.tolist()
+        c2_list = c2.tolist()
+        seed_list = seed.tolist()
 
-        serialized_data = pickle.dumps([c1_bytes, c2_bytes, ciphertext, tag, seed_bytes])
+        serialized_data = pickle.dumps([c1_list, c2_list, ciphertext, tag, seed_list])
     except Exception as e:
         print(f"Serialization failed: {e}")
         exit(1)
@@ -48,12 +49,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     # Receive and deserialize data
     received_data = s.recv(1024)
-    c1_bytes, c2_bytes, ciphertext, tag, seed_bytes = pickle.loads(received_data)
+    c1_list, c2_list, ciphertext, tag, seed_list = pickle.loads(received_data)
 
-    # Convert bytes back to NumPy arrays
-    c1 = np.frombuffer(c1_bytes, dtype=np.int64)
-    c2 = np.frombuffer(c2_bytes, dtype=np.int64)
-    seed = np.frombuffer(seed_bytes, dtype=np.uint8)
+    # Convert lists back to NumPy arrays
+    c1 = c1_list
+    c2 = c2_list
+    seed = seed_list
 
     print('Decrypting...')
     t1 = time.time()

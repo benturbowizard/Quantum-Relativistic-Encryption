@@ -7,10 +7,12 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import ciphers
 
-# Implement the placeholder function for encoding the message
+# Updated encode function to handle string encoding
 def encode(message, K):
     if isinstance(message, str):
-        binary_message = ''.join(format(ord(char), '08b') for char in message)
+        # Encode the message as bytes using UTF-8 encoding
+        message_bytes = message.encode('utf-8')
+        binary_message = ''.join(format(byte, '08b') for byte in message_bytes)
         padded_message = binary_message.ljust(K, '0')
         return padded_message[:K]
     else:
@@ -18,11 +20,10 @@ def encode(message, K):
 
 # Placeholder for generate_gadget_matrix
 def generate_gadget_matrix(n, nB):
-    # TODO: Implement the actual function
-    print("Placeholder for generate_gadget_matrix called with n =", n, "and nB =", nB)
-
-    # Return a mock matrix filled with zeros (or any other mock data)
-    return np.zeros((n, nB))
+    # Generate a random matrix with values between 0 and 1
+    gadget_matrix = np.random.rand(n, nB)
+    
+    return gadget_matrix
 
 def save_key(key, filename):
     with open(filename, 'wb') as f:
@@ -62,43 +63,35 @@ def generate_key_pair(n, q):
 
 # Regev encryption
 def encrypt(pub_key, message, n, q):
-  
-  # Encode message
-  K = 16
-  u = encode(message, K)
+    # Encode message
+    K = 16
+    u = encode(message, K)
 
-  # Sample error vectors   
-  e1 = gaussian_sampler(0, 8, n, q)
-  e2 = gaussian_sampler(0, 8, K, q)
+    # Sample error vectors   
+    e1 = gaussian_sampler(0, 8, n, q)
+    e2 = gaussian_sampler(0, 8, K, q)
 
-  # Debugging: Print the shapes
-  print("Shape of pub_key:", np.shape(pub_key))
-  print("Length of e1:", len(e1))
+    # Ensure data types are consistent
+    u = [int(bit) for bit in u]
+    e1 = [int(e) for e in e1]
+    e2 = [int(e) for e in e2]
 
-  # Compute ciphertext
-  try:
-    # Reshape pub_key to make it compatible for matrix multiplication
-    reshaped_pub_key = pub_key.reshape(-1, n)
-    print("Shape of reshaped_pub_key:", np.shape(reshaped_pub_key))  # Debugging line
+    # Debugging: Print the shapes and data types
+    print("Shape of pub_key:", np.shape(pub_key))
+    print("Length of e1:", len(e1))
+    print("Data type of e1[0]:", type(e1[0]))
+    print("Data type of u[0]:", type(u[0]))
 
-    c0 = reshaped_pub_key @ e1
+    # Compute ciphertext
+    try:
+        c0 = np.matmul(pub_key.reshape(-1, n), e1)
+        c0 = [(c + u_i) % q for c, u_i in zip(c0, u)]
+    except ValueError as e:
+        print("Matrix multiplication failed:", e)
+        return None
+    c1 = e2
 
-    # Convert 'u' to a NumPy array of the same dtype as 'c0'
-    u_array = np.array([int(bit) for bit in u], dtype=np.int64)  # Explicitly set dtype
-    print("Shape of u_array:", np.shape(u_array))  # Debugging line
-
-    # Resize u_array to match the shape of c0
-    u_array_resized = np.resize(u_array, c0.shape).astype(np.int64)  # Explicitly set dtype
-    print("Shape of u_array_resized:", np.shape(u_array_resized))  # Debugging line
-
-    # Perform the addition
-    c0 = c0 + u_array_resized
-  except ValueError as e:
-    print("Matrix multiplication failed:", e)
-    return None
-  c1 = e2
-
-  return c0, c1
+    return c0, c1
 
 # Regev decryption
 def decrypt(priv_key, c0, c1):
@@ -139,6 +132,10 @@ class Encryptor:
     c1_bytes = np.array(c1, dtype=np.uint8).tobytes()
     c2_bytes = np.array(c2, dtype=np.uint8).tobytes()
     key = derive_key(seed + c1_bytes + c2_bytes)
+
+    # Encode message if string
+    if isinstance(message, str):
+        message = message.encode('utf-8')
 
     # AES encrypt 
     ciphertext, tag = aes_encrypt(key, message)
