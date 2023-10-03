@@ -52,6 +52,7 @@ def generate_key_pair(n, q):
     B = 64  
     gadget_matrix = generate_gadget_matrix(n, n*B)
     pub_key = priv_key @ gadget_matrix
+    print("Debug: Public key generated.")
     return priv_key, pub_key
 
 # Regev encryption

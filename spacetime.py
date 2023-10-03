@@ -2,11 +2,9 @@ import sympy as sp
 import numpy as np
 
 class Spacetime:
-
     def __init__(self):
         self.x, self.y = sp.symbols('x y')
         self.metric = sp.Matrix([[1, 0], [0, 1]])
-
         print("Debug: Spacetime object initialized.")
 
     def set_metric(self, metric):
