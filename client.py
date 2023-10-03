@@ -27,7 +27,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         print("Debug: About to call encrypt function.")
         message = "Message"
         print(f"Debug: Message to encrypt: {message}")
+        print("Debug: About to unpack values.")
         c1, c2, ciphertext, tag, seed = encryptor.encrypt(message, N, q)
+        print("Debug: Unpacked values successfully.")
         print("Debug: Encryption successful.")
     except Exception as e:
         print(f"Debug: Exception details: {e}")
