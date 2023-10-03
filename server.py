@@ -27,7 +27,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         
         # Receive and deserialize data
         received_data = conn.recv(1024)
-        print("Received data:", received_data)  # Debugging line
+        print(f"Received serialized data: {received_data}") # Debugging line
         if received_data:
             c1, c2, ciphertext, tag, seed = pickle.loads(received_data)
             
