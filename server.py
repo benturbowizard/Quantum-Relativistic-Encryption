@@ -52,8 +52,15 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             t2 = time.time()
             print(f'Encryption took {t2 - t1:.2f} seconds')
 
-            # Serialize and send data
             print("Debug: About to serialize data.")
-            conn.send(pickle.dumps([c1, c2, ciphertext, tag, seed]))
+            # Serialize data 
+            serialized_data = pickle.dumps([c1, c2, ciphertext, tag, seed])
+
+            print("Serialized data:", serialized_data)
+            print("Serialized data length:", len(serialized_data))
+
+            bytes_sent = conn.send(serialized_data)  
+            print("Bytes sent:", bytes_sent)
+            
         else:
             print("No data received.")

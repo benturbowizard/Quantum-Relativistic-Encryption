@@ -6,12 +6,14 @@ from lattices import generate_key_pair, Encryptor, Decryptor, encode
 N = 256
 q = 4093
 
+message = "Hello World"
+
 print('Generating client keys...')
 t1 = time.time()
 private_key, public_key = generate_key_pair(N, q)
 t2 = time.time()
 print(f'Keygen took {t2 - t1:.2f} seconds')
-print(f'Shape of pub_key after generation: {public_key.shape}')
+print(f'Shape of public_key after generation: {public_key.shape}')
 
 print('Connecting to server...')
 HOST = 'localhost'
@@ -54,9 +56,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     # Serialize and send data
     try:
         print("Debug: About to serialize data.")
-        c1_list = c1.tolist()
-        c2_list = c2.tolist()
-        seed_list = seed.tolist()
+        c1_list = c1
+        c2_list = c2
+        seed_list = seed
         print(f"Debug: Serialized lists: c1_list: {c1_list}, c2_list: {c2_list}, seed_list: {seed_list}")
 
         serialized_data = pickle.dumps([c1_list, c2_list, ciphertext, tag, seed_list])
@@ -68,20 +70,20 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     print(f"Serialized data to send: {serialized_data}")
     s.send(serialized_data)
 
-    # Receive and deserialize data
-    received_data = s.recv(1024)
-    c1_list, c2_list, ciphertext, tag, seed_list = pickle.loads(received_data)
-    print(f"Debug: Received data: {received_data}")
+    # Receive data
+    recv_data = s.recv(1024) 
+    print("Received data:", recv_data) # Added print
 
-    # Convert lists back to NumPy arrays
-    c1 = c1_list
-    c2 = c2_list
-    seed = seed_list
-    print(f"Debug: Converted lists to NumPy arrays: c1: {c1}, c2: {c2}, seed: {seed}")
+    while True:
+        data = s.recv(1024)
+        if not data:
+            break
+        c1, c2, ciphertext, tag, seed = pickle.loads(recv_data)
+        print(f"Debug: Received data: {received_data}")
 
-    print('Decrypting...')
-    t1 = time.time()
-    decryptor = Decryptor(private_key)
-    plaintext = decryptor.decrypt(c1, c2, ciphertext, tag, seed)
-    t2 = time.time()
-    print(f'Decryption took {t2 - t1:.2f} seconds')
+        print('Decrypting...')
+        t1 = time.time()
+        decryptor = Decryptor(private_key)
+        plaintext = decryptor.decrypt(c1, c2, ciphertext, tag, seed)
+        t2 = time.time()
+        print(f'Decryption took {t2 - t1:.2f} seconds')

@@ -51,14 +51,14 @@ def generate_key_pair(n, q):
     print(f"Debug: Private key length: {len(priv_key)}")
     B = 64  
     gadget_matrix = generate_gadget_matrix(n, n*B)
-    pub_key = priv_key @ gadget_matrix
+    public_key = priv_key @ gadget_matrix
     print("Debug: Public key generated.")
-    return priv_key, pub_key
+    return priv_key, public_key
 
 # Regev encryption
-def encrypt(pub_key, message, n, q):
+def encrypt(public_key, message, n, q):
     print("Debug: Inside encrypt function.")
-    print(f"Debug: Parameters - pub_key shape: {np.shape(pub_key)}, message: {message}, n: {n}, q: {q}")
+    print(f"Debug: Parameters - public_key shape: {np.shape(public_key)}, message: {message}, n: {n}, q: {q}")
     K = 16
     u = encode(message, K)
     e1 = gaussian_sampler(0, 8, n, q)
@@ -66,7 +66,7 @@ def encrypt(pub_key, message, n, q):
     u = [int(bit) for bit in u]
     e1 = [int(e) for e in e1]
     e2 = [int(e) for e in e2]
-    c0 = np.matmul(pub_key.reshape(-1, n), e1)
+    c0 = np.matmul(public_key.reshape(-1, n), e1)
     c0 = [(c + u_i) % q for c, u_i in zip(c0, u)]
     c1 = e2
     return c0, c1
@@ -96,13 +96,14 @@ def aes_decrypt(key, ciphertext):
 
 # Hybrid Encryptor class
 class Encryptor:
-    def __init__(self, public_key):
-        print("Debug: Inside Encryptor constructor.")
-        self.pub_key = public_key
+    def __init__(self, public_key, N, q):
+        self.public_key = public_key
+        self.N = N
+        self.q = q
   
     def encrypt(self, message, n, q):
         print("Debug: Inside Encryptor encrypt function.")
-        c1, c2 = encrypt(self.pub_key, message, n, q)  
+        c1, c2 = encrypt(self.public_key, message, n, q)  
         seed = os.urandom(32)
         c1_bytes = np.array(c1, dtype=np.uint8).tobytes()
         c2_bytes = np.array(c2, dtype=np.uint8).tobytes()
@@ -144,7 +145,7 @@ class AESCipher:
         cipher = Cipher(algorithms.AES(self.key), modes.GCM(iv), backend=default_backend())
         encryptor = cipher.encryptor()
         ciphertext = encryptor.update(plaintext) + encryptor.finalize()
-        return (iv, ciphertext, encryptor.tag)
+        return (ciphertext, encryptor.tag)
 
     def decrypt(self, iv, ciphertext, tag):
         print("Debug: Inside AESCipher decrypt function.")
